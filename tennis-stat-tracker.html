@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis Stat Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Opening Menu Styles */
+        .menu-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .menu-screen h1 {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .menu-screen .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .menu-container {
+            background-color: #2a2a2a;
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            border-color: #666;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 18px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: #45a049;
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Main Interface Styles */
+        .match-screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: #2a2a2a;
+            padding: 15px 20px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .match-info {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background-color: #333;
+            color: #fff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            border-color: #4CAF50;
+            background-color: #3a3a3a;
+        }
+
+        .header-btn.stats-btn.active {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .set-scores {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 1.1rem;
+        }
+
+        .set-score-item {
+            text-align: center;
+        }
+
+        .set-score-item .label {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        /* Players Container */
+        .players-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .player-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border-right: 1px solid #333;
+        }
+
+        .player-section:last-child {
+            border-right: none;
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .server-indicator {
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .server-indicator.active {
+            opacity: 1;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .points-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .games-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 1.2rem;
+        }
+
+        .games-display .current-game {
+            background-color: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 6px;
+        }
+
+        .set-scores-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .set-score-badge {
+            background-color: #333;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .set-score-badge.won {
+            background-color: #4CAF50;
+        }
+
+        /* Point Tracking Buttons */
+        .tracking-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .track-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .track-btn:active {
+            transform: scale(0.97);
+        }
+
+        .track-btn.winner {
+            background-color: #e53935;
+            color: white;
+        }
+
+        .track-btn.unforced-error {
+            background-color: #fdd835;
+            color: #333;
+        }
+
+        .track-btn.forced-error {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .track-btn.fault {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .track-btn.ace {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .track-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            display: none;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-top: 2px solid #4CAF50;
+        }
+
+        .stats-panel.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-row {
+            display: contents;
+        }
+
+        .stat-value {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 8px;
+        }
+
+        .stat-value.left {
+            text-align: right;
+            color: #4CAF50;
+        }
+
+        .stat-value.right {
+            text-align: left;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            text-align: center;
+            color: #888;
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+
+        /* History Panel */
+        .history-panel {
+            background-color: #2a2a2a;
+            padding: 10px 20px;
+            border-top: 1px solid #333;
+        }
+
+        .history-title {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .history-items {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .history-item {
+            background-color: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .history-item.p1 {
+            border-left: 3px solid #4CAF50;
+        }
+
+        .history-item.p2 {
+            border-left: 3px solid #2196F3;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #2a2a2a;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 14px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            border-color: #4CAF50;
+            background-color: #3a3a3a;
+        }
+
+        .modal-btn.skip {
+            grid-column: span 2;
+            background-color: #555;
+            margin-top: 10px;
+        }
+
+        .rally-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .rally-btn {
+            padding: 20px 30px;
+            border: 2px solid #444;
+            border-radius: 12px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .rally-btn:hover {
+            border-color: #4CAF50;
+            background-color: #3a3a3a;
+        }
+
+        .rally-btn .range {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Confirm Dialog */
+        .confirm-dialog {
+            text-align: center;
+        }
+
+        .confirm-dialog p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .confirm-btn.cancel {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .confirm-btn.confirm {
+            background-color: #e53935;
+            color: #fff;
+        }
+
+        .confirm-btn.menu {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        /* Match Complete Screen */
+        .match-complete {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .match-complete h2 {
+            color: #4CAF50;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .match-complete .winner-name {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .players-container {
+                flex-direction: column;
+            }
+
+            .player-section {
+                border-right: none;
+                border-bottom: 1px solid #333;
+            }
+
+            .points-display {
+                font-size: 3rem;
+            }
+
+            .header-controls {
+                justify-content: center;
+            }
+
+            .modal-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .rally-buttons {
+                flex-direction: column;
+            }
+
+            .set-scores {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Opening Menu Screen -->
+    <div class="menu-screen" id="menuScreen">
+        <h1>🎾 Tennis Stat Tracker</h1>
+        <p class="subtitle">Track every point, analyze every match</p>
+
+        <div class="menu-container">
+            <div class="form-group">
+                <label for="player1Name">Player 1 Name</label>
+                <input type="text" id="player1Name" placeholder="Enter player 1 name" value="Player 1">
+            </div>
+
+            <div class="form-group">
+                <label for="player2Name">Player 2 Name</label>
+                <input type="text" id="player2Name" placeholder="Enter player 2 name" value="Player 2">
+            </div>
+
+            <div class="form-group">
+                <label for="bestOf">Best Of</label>
+                <select id="bestOf">
+                    <option value="1">1 Set</option>
+                    <option value="3" selected>3 Sets</option>
+                    <option value="5">5 Sets</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Scoring Type</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="adScoring" onclick="setScoringType('ad')">Ad Scoring</button>
+                    <button class="toggle-btn" id="noAdScoring" onclick="setScoringType('noAd')">No-Ad Scoring</button>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startMatch()">START MATCH</button>
+        </div>
+    </div>
+
+    <!-- Main Match Screen -->
+    <div class="match-screen" id="matchScreen">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="match-info" id="matchInfo">Best of 3 Sets • Ad Scoring</div>
+                <div class="header-controls">
+                    <button class="header-btn stats-btn" id="statsBtn" onclick="toggleStats()">Stats</button>
+                    <button class="header-btn" onclick="undo()">Undo</button>
+                    <button class="header-btn" onclick="redo()">Redo</button>
+                    <button class="header-btn" onclick="showResetDialog()">Reset</button>
+                    <button class="header-btn" onclick="exportPDF()">Export PDF</button>
+                </div>
+            </div>
+            <div class="set-scores" id="setScoresHeader"></div>
+        </div>
+
+        <!-- Players Container -->
+        <div class="players-container">
+            <!-- Player 1 Section -->
+            <div class="player-section" id="player1Section">
+                <div class="player-header">
+                    <div class="player-name" id="player1Display">Player 1</div>
+                    <div class="server-indicator" id="server1">🎾</div>
+                </div>
+
+                <div class="score-display">
+                    <div class="points-display" id="points1">0</div>
+                    <div class="games-display">
+                        <span>Games:</span>
+                        <span class="current-game" id="games1">0</span>
+                    </div>
+                    <div class="set-scores-display" id="sets1"></div>
+                </div>
+
+                <div class="tracking-buttons">
+                    <button class="track-btn winner" onclick="recordPoint(0, 'winner')">Winner</button>
+                    <button class="track-btn unforced-error" onclick="recordPoint(1, 'unforcedError')">Unforced Error</button>
+                    <button class="track-btn forced-error" onclick="recordPoint(1, 'forcedError')">Forced Error</button>
+                    <button class="track-btn fault" id="fault1" onclick="recordFault(0)">Fault</button>
+                    <button class="track-btn ace" onclick="recordAce(0)">Ace</button>
+                </div>
+            </div>
+
+            <!-- Player 2 Section -->
+            <div class="player-section" id="player2Section">
+                <div class="player-header">
+                    <div class="player-name" id="player2Display">Player 2</div>
+                    <div class="server-indicator" id="server2">🎾</div>
+                </div>
+
+                <div class="score-display">
+                    <div class="points-display" id="points2">0</div>
+                    <div class="games-display">
+                        <span>Games:</span>
+                        <span class="current-game" id="games2">0</span>
+                    </div>
+                    <div class="set-scores-display" id="sets2"></div>
+                </div>
+
+                <div class="tracking-buttons">
+                    <button class="track-btn winner" onclick="recordPoint(1, 'winner')">Winner</button>
+                    <button class="track-btn unforced-error" onclick="recordPoint(0, 'unforcedError')">Unforced Error</button>
+                    <button class="track-btn forced-error" onclick="recordPoint(0, 'forcedError')">Forced Error</button>
+                    <button class="track-btn fault" id="fault2" onclick="recordFault(1)">Fault</button>
+                    <button class="track-btn ace" onclick="recordAce(1)">Ace</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="stats-panel" id="statsPanel">
+            <div class="stats-grid">
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1ServePercent">0%</div>
+                    <div class="stat-label">1st Serve %</div>
+                    <div class="stat-value right" id="stat2ServePercent">0%</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1Aces">0</div>
+                    <div class="stat-label">Aces</div>
+                    <div class="stat-value right" id="stat2Aces">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1DoubleFaults">0</div>
+                    <div class="stat-label">Double Faults</div>
+                    <div class="stat-value right" id="stat2DoubleFaults">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1Winners">0</div>
+                    <div class="stat-label">Winners</div>
+                    <div class="stat-value right" id="stat2Winners">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1UnforcedErrors">0</div>
+                    <div class="stat-label">Unforced Errors</div>
+                    <div class="stat-value right" id="stat2UnforcedErrors">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1ForcedErrors">0</div>
+                    <div class="stat-label">Forced Errors</div>
+                    <div class="stat-value right" id="stat2ForcedErrors">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1PointsWon1st">0</div>
+                    <div class="stat-label">Points Won 1st Serve</div>
+                    <div class="stat-value right" id="stat2PointsWon1st">0</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-value left" id="stat1PointsWon2nd">0</div>
+                    <div class="stat-label">Points Won 2nd Serve</div>
+                    <div class="stat-value right" id="stat2PointsWon2nd">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="history-panel">
+            <div class="history-title">Point History (Last 5)</div>
+            <div class="history-items" id="historyItems"></div>
+        </div>
+    </div>
+
+    <!-- Shot Type Modal -->
+    <div class="modal-overlay" id="shotTypeModal">
+        <div class="modal">
+            <h2>Select Shot Type</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="selectShotType('Forehand Down Line')">Forehand Down Line</button>
+                <button class="modal-btn" onclick="selectShotType('Forehand Cross Court')">Forehand Cross Court</button>
+                <button class="modal-btn" onclick="selectShotType('Forehand Inside Out')">Forehand Inside Out</button>
+                <button class="modal-btn" onclick="selectShotType('Forehand Inside In')">Forehand Inside In</button>
+                <button class="modal-btn" onclick="selectShotType('Backhand Down Line')">Backhand Down Line</button>
+                <button class="modal-btn" onclick="selectShotType('Backhand Cross Court')">Backhand Cross Court</button>
+                <button class="modal-btn" onclick="selectShotType('Drop Volley')">Drop Volley</button>
+                <button class="modal-btn" onclick="selectShotType('Slice Volley')">Slice Volley</button>
+                <button class="modal-btn" onclick="selectShotType('Flat Volley')">Flat Volley</button>
+                <button class="modal-btn" onclick="selectShotType('Overhead')">Overhead</button>
+                <button class="modal-btn" onclick="selectShotType('Lob')">Lob</button>
+                <button class="modal-btn skip" onclick="selectShotType(null)">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rally Length Modal -->
+    <div class="modal-overlay" id="rallyModal">
+        <div class="modal">
+            <h2>Rally Length</h2>
+            <div class="rally-buttons">
+                <button class="rally-btn" onclick="selectRallyLength('short')">
+                    Short
+                    <span class="range">0-4</span>
+                </button>
+                <button class="rally-btn" onclick="selectRallyLength('medium')">
+                    Medium
+                    <span class="range">5-8</span>
+                </button>
+                <button class="rally-btn" onclick="selectRallyLength('long')">
+                    Long
+                    <span class="range">9+</span>
+                </button>
+            </div>
+            <button class="modal-btn skip" style="width: 100%;" onclick="selectRallyLength(null)">Skip</button>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal">
+            <div class="confirm-dialog">
+                <h2>Reset Match?</h2>
+                <p>This will clear all scores, games, sets, and statistics.</p>
+                <div class="confirm-buttons">
+                    <button class="confirm-btn cancel" onclick="closeResetDialog()">Cancel</button>
+                    <button class="confirm-btn confirm" onclick="resetMatch(false)">Reset Match</button>
+                    <button class="confirm-btn menu" onclick="resetMatch(true)">Return to Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Complete Modal -->
+    <div class="modal-overlay" id="matchCompleteModal">
+        <div class="modal">
+            <div class="match-complete">
+                <h2>Match Complete!</h2>
+                <div class="winner-name" id="winnerName"></div>
+                <div class="final-score" id="finalScore"></div>
+                <div class="confirm-buttons">
+                    <button class="confirm-btn menu" onclick="resetMatch(true)">Return to Menu</button>
+                    <button class="confirm-btn confirm" onclick="exportPDF(); closeMatchComplete();">Export PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let match = {
+            player1Name: 'Player 1',
+            player2Name: 'Player 2',
+            bestOf: 3,
+            adScoring: true,
+            server: 0, // 0 = player1, 1 = player2
+            isSecondServe: false,
+            points: [0, 0], // Current game points
+            games: [0, 0], // Current set games
+            sets: [[], []], // Completed set scores
+            tiebreak: false,
+            tiebreakPoints: [0, 0],
+            stats: [
+                {
+                    firstServeAttempts: 0,
+                    firstServeIn: 0,
+                    aces: 0,
+                    doubleFaults: 0,
+                    winners: 0,
+                    unforcedErrors: 0,
+                    forcedErrors: 0,
+                    pointsWon1stServe: 0,
+                    pointsWon2ndServe: 0
+                },
+                {
+                    firstServeAttempts: 0,
+                    firstServeIn: 0,
+                    aces: 0,
+                    doubleFaults: 0,
+                    winners: 0,
+                    unforcedErrors: 0,
+                    forcedErrors: 0,
+                    pointsWon1stServe: 0,
+                    pointsWon2ndServe: 0
+                }
+            ],
+            history: [],
+            undoneHistory: [],
+            matchComplete: false
+        };
+
+        // Pending point data
+        let pendingPoint = null;
+
+        // Scoring type toggle
+        function setScoringType(type) {
+            document.getElementById('adScoring').classList.toggle('active', type === 'ad');
+            document.getElementById('noAdScoring').classList.toggle('active', type === 'noAd');
+            match.adScoring = type === 'ad';
+        }
+
+        // Start match
+        function startMatch() {
+            match.player1Name = document.getElementById('player1Name').value || 'Player 1';
+            match.player2Name = document.getElementById('player2Name').value || 'Player 2';
+            match.bestOf = parseInt(document.getElementById('bestOf').value);
+
+            document.getElementById('player1Display').textContent = match.player1Name;
+            document.getElementById('player2Display').textContent = match.player2Name;
+            document.getElementById('matchInfo').textContent = `Best of ${match.bestOf} Sets • ${match.adScoring ? 'Ad' : 'No-Ad'} Scoring`;
+
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('matchScreen').style.display = 'flex';
+
+            updateDisplay();
+        }
+
+        // Point display conversion
+        function getPointDisplay(points, playerIndex, opponentPoints) {
+            if (match.tiebreak) {
+                return match.tiebreakPoints[playerIndex].toString();
+            }
+
+            const pointLabels = ['0', '15', '30', '40'];
+
+            if (points < 3) return pointLabels[points];
+            if (points === 3 && opponentPoints < 3) return '40';
+
+            if (match.adScoring) {
+                if (points === opponentPoints) return 'DEUCE';
+                if (points > opponentPoints) return 'AD';
+                return '40';
+            } else {
+                if (points >= 3 && opponentPoints >= 3) return 'DEUCE';
+                return '40';
+            }
+        }
+
+        // Update all displays
+        function updateDisplay() {
+            // Points display
+            const p1Display = getPointDisplay(match.points[0], 0, match.points[1]);
+            const p2Display = getPointDisplay(match.points[1], 1, match.points[0]);
+
+            document.getElementById('points1').textContent = p1Display;
+            document.getElementById('points2').textContent = p2Display;
+
+            // Games display
+            document.getElementById('games1').textContent = match.games[0];
+            document.getElementById('games2').textContent = match.games[1];
+
+            // Set scores display
+            let sets1Html = '';
+            let sets2Html = '';
+            for (let i = 0; i < match.sets[0].length; i++) {
+                const won1 = match.sets[0][i] > match.sets[1][i];
+                const won2 = match.sets[1][i] > match.sets[0][i];
+                sets1Html += `<span class="set-score-badge ${won1 ? 'won' : ''}">${match.sets[0][i]}</span>`;
+                sets2Html += `<span class="set-score-badge ${won2 ? 'won' : ''}">${match.sets[1][i]}</span>`;
+            }
+            document.getElementById('sets1').innerHTML = sets1Html;
+            document.getElementById('sets2').innerHTML = sets2Html;
+
+            // Header set scores
+            let headerHtml = '';
+            for (let i = 0; i < match.sets[0].length; i++) {
+                headerHtml += `
+                    <div class="set-score-item">
+                        <div class="label">Set ${i + 1}</div>
+                        <div>${match.sets[0][i]} - ${match.sets[1][i]}</div>
+                    </div>
+                `;
+            }
+            if (match.games[0] > 0 || match.games[1] > 0) {
+                headerHtml += `
+                    <div class="set-score-item">
+                        <div class="label">Current${match.tiebreak ? ' (TB)' : ''}</div>
+                        <div>${match.games[0]} - ${match.games[1]}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('setScoresHeader').innerHTML = headerHtml;
+
+            // Server indicator
+            document.getElementById('server1').classList.toggle('active', match.server === 0);
+            document.getElementById('server2').classList.toggle('active', match.server === 1);
+
+            // Fault buttons
+            const fault1 = document.getElementById('fault1');
+            const fault2 = document.getElementById('fault2');
+            if (match.server === 0 && match.isSecondServe) {
+                fault1.textContent = 'DOUBLE FAULT';
+                fault1.style.backgroundColor = '#d32f2f';
+            } else {
+                fault1.textContent = 'FAULT';
+                fault1.style.backgroundColor = '#9c27b0';
+            }
+            if (match.server === 1 && match.isSecondServe) {
+                fault2.textContent = 'DOUBLE FAULT';
+                fault2.style.backgroundColor = '#d32f2f';
+            } else {
+                fault2.textContent = 'FAULT';
+                fault2.style.backgroundColor = '#9c27b0';
+            }
+
+            // Update stats
+            updateStats();
+
+            // Update history
+            updateHistory();
+        }
+
+        // Update stats panel
+        function updateStats() {
+            for (let i = 0; i < 2; i++) {
+                const stats = match.stats[i];
+                const prefix = i === 0 ? 'stat1' : 'stat2';
+
+                const servePercent = stats.firstServeAttempts > 0
+                    ? Math.round((stats.firstServeIn / stats.firstServeAttempts) * 100)
+                    : 0;
+
+                document.getElementById(`${prefix}ServePercent`).textContent = servePercent + '%';
+                document.getElementById(`${prefix}Aces`).textContent = stats.aces;
+                document.getElementById(`${prefix}DoubleFaults`).textContent = stats.doubleFaults;
+                document.getElementById(`${prefix}Winners`).textContent = stats.winners;
+                document.getElementById(`${prefix}UnforcedErrors`).textContent = stats.unforcedErrors;
+                document.getElementById(`${prefix}ForcedErrors`).textContent = stats.forcedErrors;
+                document.getElementById(`${prefix}PointsWon1st`).textContent = stats.pointsWon1stServe;
+                document.getElementById(`${prefix}PointsWon2nd`).textContent = stats.pointsWon2ndServe;
+            }
+        }
+
+        // Update history panel
+        function updateHistory() {
+            const container = document.getElementById('historyItems');
+            const last5 = match.history.slice(-5);
+
+            container.innerHTML = last5.map(h => {
+                const playerClass = h.pointWinner === 0 ? 'p1' : 'p2';
+                const playerName = h.pointWinner === 0 ? match.player1Name : match.player2Name;
+                return `<div class="history-item ${playerClass}">${playerName}: ${h.type}${h.shotType ? ' (' + h.shotType + ')' : ''}</div>`;
+            }).join('');
+        }
+
+        // Toggle stats panel
+        function toggleStats() {
+            const panel = document.getElementById('statsPanel');
+            const btn = document.getElementById('statsBtn');
+            panel.classList.toggle('active');
+            btn.classList.toggle('active');
+        }
+
+        // Record point with shot type modal
+        function recordPoint(pointWinner, type) {
+            if (match.matchComplete) return;
+
+            // Show shot type modal for winner, unforced error, forced error
+            if (['winner', 'unforcedError', 'forcedError'].includes(type)) {
+                pendingPoint = { pointWinner, type };
+                document.getElementById('shotTypeModal').classList.add('active');
+            } else {
+                finalizePoint(pointWinner, type, null, null);
+            }
+        }
+
+        // Select shot type
+        function selectShotType(shotType) {
+            document.getElementById('shotTypeModal').classList.remove('active');
+            pendingPoint.shotType = shotType;
+
+            // Show rally length modal
+            document.getElementById('rallyModal').classList.add('active');
+        }
+
+        // Select rally length
+        function selectRallyLength(rallyLength) {
+            document.getElementById('rallyModal').classList.remove('active');
+
+            if (pendingPoint) {
+                finalizePoint(pendingPoint.pointWinner, pendingPoint.type, pendingPoint.shotType, rallyLength);
+                pendingPoint = null;
+            }
+        }
+
+        // Finalize point
+        function finalizePoint(pointWinner, type, shotType, rallyLength) {
+            const server = match.server;
+            const isSecondServe = match.isSecondServe;
+
+            // Save state for undo
+            const historyEntry = {
+                pointWinner,
+                type,
+                shotType,
+                rallyLength,
+                server,
+                isSecondServe,
+                prevState: JSON.parse(JSON.stringify({
+                    points: match.points,
+                    games: match.games,
+                    sets: match.sets,
+                    tiebreak: match.tiebreak,
+                    tiebreakPoints: match.tiebreakPoints,
+                    stats: match.stats,
+                    server: match.server,
+                    isSecondServe: match.isSecondServe
+                }))
+            };
+
+            // Update stats based on type
+            if (type === 'winner') {
+                match.stats[pointWinner].winners++;
+            } else if (type === 'unforcedError') {
+                match.stats[1 - pointWinner].unforcedErrors++;
+            } else if (type === 'forcedError') {
+                match.stats[1 - pointWinner].forcedErrors++;
+            }
+
+            // Track serve stats
+            if (!isSecondServe) {
+                match.stats[server].firstServeAttempts++;
+                match.stats[server].firstServeIn++;
+                if (pointWinner === server) {
+                    match.stats[server].pointsWon1stServe++;
+                }
+            } else {
+                if (pointWinner === server) {
+                    match.stats[server].pointsWon2ndServe++;
+                }
+            }
+
+            // Reset second serve flag
+            match.isSecondServe = false;
+
+            // Award point
+            awardPoint(pointWinner);
+
+            // Save to history
+            match.history.push(historyEntry);
+            match.undoneHistory = [];
+
+            updateDisplay();
+        }
+
+        // Record ace
+        function recordAce(player) {
+            if (match.matchComplete) return;
+            if (player !== match.server) return; // Only server can ace
+
+            const isSecondServe = match.isSecondServe;
+
+            // Save state for undo
+            const historyEntry = {
+                pointWinner: player,
+                type: 'ace',
+                shotType: null,
+                rallyLength: null,
+                server: match.server,
+                isSecondServe,
+                prevState: JSON.parse(JSON.stringify({
+                    points: match.points,
+                    games: match.games,
+                    sets: match.sets,
+                    tiebreak: match.tiebreak,
+                    tiebreakPoints: match.tiebreakPoints,
+                    stats: match.stats,
+                    server: match.server,
+                    isSecondServe: match.isSecondServe
+                }))
+            };
+
+            // Update stats
+            match.stats[player].aces++;
+            if (!isSecondServe) {
+                match.stats[player].firstServeAttempts++;
+                match.stats[player].firstServeIn++;
+                match.stats[player].pointsWon1stServe++;
+            } else {
+                match.stats[player].pointsWon2ndServe++;
+            }
+
+            match.isSecondServe = false;
+
+            // Award point
+            awardPoint(player);
+
+            // Save to history
+            match.history.push(historyEntry);
+            match.undoneHistory = [];
+
+            updateDisplay();
+        }
+
+        // Record fault
+        function recordFault(player) {
+            if (match.matchComplete) return;
+            if (player !== match.server) return; // Only server can fault
+
+            if (match.isSecondServe) {
+                // Double fault - opponent wins point
+                const opponent = 1 - player;
+
+                // Save state for undo
+                const historyEntry = {
+                    pointWinner: opponent,
+                    type: 'doubleFault',
+                    shotType: null,
+                    rallyLength: null,
+                    server: match.server,
+                    isSecondServe: true,
+                    prevState: JSON.parse(JSON.stringify({
+                        points: match.points,
+                        games: match.games,
+                        sets: match.sets,
+                        tiebreak: match.tiebreak,
+                        tiebreakPoints: match.tiebreakPoints,
+                        stats: match.stats,
+                        server: match.server,
+                        isSecondServe: match.isSecondServe
+                    }))
+                };
+
+                // Update stats
+                match.stats[player].doubleFaults++;
+
+                match.isSecondServe = false;
+
+                // Award point to opponent
+                awardPoint(opponent);
+
+                // Save to history
+                match.history.push(historyEntry);
+                match.undoneHistory = [];
+            } else {
+                // First serve fault
+                match.stats[player].firstServeAttempts++;
+                match.isSecondServe = true;
+
+                // Save state for undo (no point awarded)
+                const historyEntry = {
+                    pointWinner: null,
+                    type: 'fault',
+                    shotType: null,
+                    rallyLength: null,
+                    server: match.server,
+                    isSecondServe: false,
+                    prevState: JSON.parse(JSON.stringify({
+                        points: match.points,
+                        games: match.games,
+                        sets: match.sets,
+                        tiebreak: match.tiebreak,
+                        tiebreakPoints: match.tiebreakPoints,
+                        stats: match.stats,
+                        server: match.server,
+                        isSecondServe: false
+                    }))
+                };
+
+                match.history.push(historyEntry);
+                match.undoneHistory = [];
+            }
+
+            updateDisplay();
+        }
+
+        // Award point to player
+        function awardPoint(player) {
+            if (match.tiebreak) {
+                match.tiebreakPoints[player]++;
+
+                const p1 = match.tiebreakPoints[0];
+                const p2 = match.tiebreakPoints[1];
+
+                // Check for tiebreak win (first to 7, win by 2)
+                if ((p1 >= 7 || p2 >= 7) && Math.abs(p1 - p2) >= 2) {
+                    const winner = p1 > p2 ? 0 : 1;
+                    winGame(winner);
+                    return;
+                }
+
+                // Switch server every 2 points in tiebreak (after first point)
+                const totalPoints = p1 + p2;
+                if (totalPoints % 2 === 1) {
+                    match.server = 1 - match.server;
+                }
+            } else {
+                match.points[player]++;
+
+                const p1 = match.points[0];
+                const p2 = match.points[1];
+
+                // Check for game win
+                if (match.adScoring) {
+                    // Ad scoring: need 4+ points and 2 point lead
+                    if ((p1 >= 4 || p2 >= 4) && Math.abs(p1 - p2) >= 2) {
+                        const winner = p1 > p2 ? 0 : 1;
+                        winGame(winner);
+                    }
+                } else {
+                    // No-Ad scoring: first to 4 wins, deuce is sudden death
+                    if (p1 >= 4) {
+                        winGame(0);
+                    } else if (p2 >= 4) {
+                        winGame(1);
+                    } else if (p1 === 3 && p2 === 3) {
+                        // Deuce in no-ad: receiver chooses side, next point wins
+                        // For simplicity, next point wins
+                    }
+                }
+            }
+        }
+
+        // Win game
+        function winGame(player) {
+            match.games[player]++;
+            match.points = [0, 0];
+            match.tiebreakPoints = [0, 0];
+
+            const g1 = match.games[0];
+            const g2 = match.games[1];
+
+            // Check for set win
+            if (match.tiebreak) {
+                // Tiebreak game won
+                match.tiebreak = false;
+                winSet(player);
+                return;
+            }
+
+            if ((g1 >= 6 || g2 >= 6) && Math.abs(g1 - g2) >= 2) {
+                // Set won with 2 game lead
+                const winner = g1 > g2 ? 0 : 1;
+                winSet(winner);
+                return;
+            }
+
+            if (g1 === 6 && g2 === 6) {
+                // Tiebreak at 6-6
+                match.tiebreak = true;
+            }
+
+            // Switch server
+            match.server = 1 - match.server;
+        }
+
+        // Win set
+        function winSet(player) {
+            match.sets[0].push(match.games[0]);
+            match.sets[1].push(match.games[1]);
+            match.games = [0, 0];
+
+            // Check for match win
+            const setsNeeded = Math.ceil(match.bestOf / 2);
+            let player1Sets = 0;
+            let player2Sets = 0;
+
+            for (let i = 0; i < match.sets[0].length; i++) {
+                if (match.sets[0][i] > match.sets[1][i]) player1Sets++;
+                else player2Sets++;
+            }
+
+            if (player1Sets >= setsNeeded) {
+                matchComplete(0);
+            } else if (player2Sets >= setsNeeded) {
+                matchComplete(1);
+            }
+
+            // Switch server for new set
+            match.server = 1 - match.server;
+        }
+
+        // Match complete
+        function matchComplete(winner) {
+            match.matchComplete = true;
+
+            const winnerName = winner === 0 ? match.player1Name : match.player2Name;
+            document.getElementById('winnerName').textContent = winnerName + ' Wins!';
+
+            let scoreText = '';
+            for (let i = 0; i < match.sets[0].length; i++) {
+                if (i > 0) scoreText += ', ';
+                scoreText += `${match.sets[0][i]}-${match.sets[1][i]}`;
+            }
+            document.getElementById('finalScore').textContent = scoreText;
+
+            document.getElementById('matchCompleteModal').classList.add('active');
+        }
+
+        // Close match complete modal
+        function closeMatchComplete() {
+            document.getElementById('matchCompleteModal').classList.remove('active');
+        }
+
+        // Undo
+        function undo() {
+            if (match.history.length === 0) return;
+
+            const lastEntry = match.history.pop();
+            match.undoneHistory.push(lastEntry);
+
+            // Restore previous state
+            const prevState = lastEntry.prevState;
+            match.points = prevState.points;
+            match.games = prevState.games;
+            match.sets = prevState.sets;
+            match.tiebreak = prevState.tiebreak;
+            match.tiebreakPoints = prevState.tiebreakPoints;
+            match.stats = prevState.stats;
+            match.server = prevState.server;
+            match.isSecondServe = prevState.isSecondServe;
+            match.matchComplete = false;
+
+            document.getElementById('matchCompleteModal').classList.remove('active');
+
+            updateDisplay();
+        }
+
+        // Redo
+        function redo() {
+            if (match.undoneHistory.length === 0) return;
+
+            const entry = match.undoneHistory.pop();
+
+            // Re-apply the point
+            if (entry.type === 'fault' && entry.pointWinner === null) {
+                // First serve fault
+                match.stats[entry.server].firstServeAttempts++;
+                match.isSecondServe = true;
+            } else if (entry.type === 'doubleFault') {
+                match.stats[entry.server].doubleFaults++;
+                match.isSecondServe = false;
+                awardPoint(entry.pointWinner);
+            } else if (entry.type === 'ace') {
+                match.stats[entry.pointWinner].aces++;
+                if (!entry.isSecondServe) {
+                    match.stats[entry.pointWinner].firstServeAttempts++;
+                    match.stats[entry.pointWinner].firstServeIn++;
+                    match.stats[entry.pointWinner].pointsWon1stServe++;
+                } else {
+                    match.stats[entry.pointWinner].pointsWon2ndServe++;
+                }
+                match.isSecondServe = false;
+                awardPoint(entry.pointWinner);
+            } else {
+                if (entry.type === 'winner') {
+                    match.stats[entry.pointWinner].winners++;
+                } else if (entry.type === 'unforcedError') {
+                    match.stats[1 - entry.pointWinner].unforcedErrors++;
+                } else if (entry.type === 'forcedError') {
+                    match.stats[1 - entry.pointWinner].forcedErrors++;
+                }
+
+                if (!entry.isSecondServe) {
+                    match.stats[entry.server].firstServeAttempts++;
+                    match.stats[entry.server].firstServeIn++;
+                    if (entry.pointWinner === entry.server) {
+                        match.stats[entry.server].pointsWon1stServe++;
+                    }
+                } else {
+                    if (entry.pointWinner === entry.server) {
+                        match.stats[entry.server].pointsWon2ndServe++;
+                    }
+                }
+
+                match.isSecondServe = false;
+                awardPoint(entry.pointWinner);
+            }
+
+            match.history.push(entry);
+            updateDisplay();
+        }
+
+        // Show reset dialog
+        function showResetDialog() {
+            document.getElementById('resetModal').classList.add('active');
+        }
+
+        // Close reset dialog
+        function closeResetDialog() {
+            document.getElementById('resetModal').classList.remove('active');
+        }
+
+        // Reset match
+        function resetMatch(returnToMenu) {
+            closeResetDialog();
+            document.getElementById('matchCompleteModal').classList.remove('active');
+
+            // Reset match state
+            match.points = [0, 0];
+            match.games = [0, 0];
+            match.sets = [[], []];
+            match.tiebreak = false;
+            match.tiebreakPoints = [0, 0];
+            match.server = 0;
+            match.isSecondServe = false;
+            match.history = [];
+            match.undoneHistory = [];
+            match.matchComplete = false;
+            match.stats = [
+                {
+                    firstServeAttempts: 0,
+                    firstServeIn: 0,
+                    aces: 0,
+                    doubleFaults: 0,
+                    winners: 0,
+                    unforcedErrors: 0,
+                    forcedErrors: 0,
+                    pointsWon1stServe: 0,
+                    pointsWon2ndServe: 0
+                },
+                {
+                    firstServeAttempts: 0,
+                    firstServeIn: 0,
+                    aces: 0,
+                    doubleFaults: 0,
+                    winners: 0,
+                    unforcedErrors: 0,
+                    forcedErrors: 0,
+                    pointsWon1stServe: 0,
+                    pointsWon2ndServe: 0
+                }
+            ];
+
+            if (returnToMenu) {
+                document.getElementById('matchScreen').style.display = 'none';
+                document.getElementById('menuScreen').style.display = 'flex';
+            } else {
+                updateDisplay();
+            }
+        }
+
+        // Export to PDF
+        function exportPDF() {
+            const { jsPDF } = window.jspdf || {};
+
+            if (!jsPDF) {
+                // Fallback: Create a printable version
+                let content = `
+TENNIS MATCH STATISTICS
+========================
+
+${match.player1Name} vs ${match.player2Name}
+${match.bestOf} Set Match • ${match.adScoring ? 'Advantage' : 'No-Ad'} Scoring
+
+FINAL SCORE
+-----------
+`;
+                for (let i = 0; i < match.sets[0].length; i++) {
+                    content += `Set ${i + 1}: ${match.sets[0][i]} - ${match.sets[1][i]}\n`;
+                }
+
+                if (match.games[0] > 0 || match.games[1] > 0) {
+                    content += `Current Set: ${match.games[0]} - ${match.games[1]}\n`;
+                }
+
+                content += `
+PLAYER STATISTICS
+-----------------
+                        ${match.player1Name.padEnd(15)} ${match.player2Name}
+1st Serve %:            ${(match.stats[0].firstServeAttempts > 0 ? Math.round((match.stats[0].firstServeIn / match.stats[0].firstServeAttempts) * 100) : 0).toString().padEnd(15)}% ${match.stats[1].firstServeAttempts > 0 ? Math.round((match.stats[1].firstServeIn / match.stats[1].firstServeAttempts) * 100) : 0}%
+Aces:                   ${match.stats[0].aces.toString().padEnd(15)} ${match.stats[1].aces}
+Double Faults:          ${match.stats[0].doubleFaults.toString().padEnd(15)} ${match.stats[1].doubleFaults}
+Winners:                ${match.stats[0].winners.toString().padEnd(15)} ${match.stats[1].winners}
+Unforced Errors:        ${match.stats[0].unforcedErrors.toString().padEnd(15)} ${match.stats[1].unforcedErrors}
+Forced Errors:          ${match.stats[0].forcedErrors.toString().padEnd(15)} ${match.stats[1].forcedErrors}
+Points Won (1st Serve): ${match.stats[0].pointsWon1stServe.toString().padEnd(15)} ${match.stats[1].pointsWon1stServe}
+Points Won (2nd Serve): ${match.stats[0].pointsWon2ndServe.toString().padEnd(15)} ${match.stats[1].pointsWon2ndServe}
+`;
+
+                // Create and download text file
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tennis-match-${match.player1Name}-vs-${match.player2Name}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                return;
+            }
+
+            // If jsPDF is available, create PDF
+            const doc = new jsPDF();
+
+            doc.setFontSize(20);
+            doc.text('Tennis Match Statistics', 105, 20, { align: 'center' });
+
+            doc.setFontSize(14);
+            doc.text(`${match.player1Name} vs ${match.player2Name}`, 105, 35, { align: 'center' });
+
+            doc.setFontSize(10);
+            doc.text(`${match.bestOf} Set Match • ${match.adScoring ? 'Advantage' : 'No-Ad'} Scoring`, 105, 45, { align: 'center' });
+
+            let y = 60;
+
+            doc.setFontSize(14);
+            doc.text('Set Scores', 20, y);
+            y += 10;
+
+            doc.setFontSize(10);
+            for (let i = 0; i < match.sets[0].length; i++) {
+                doc.text(`Set ${i + 1}: ${match.sets[0][i]} - ${match.sets[1][i]}`, 20, y);
+                y += 7;
+            }
+
+            y += 10;
+            doc.setFontSize(14);
+            doc.text('Player Statistics', 20, y);
+            y += 10;
+
+            const stats = [
+                ['1st Serve %', `${match.stats[0].firstServeAttempts > 0 ? Math.round((match.stats[0].firstServeIn / match.stats[0].firstServeAttempts) * 100) : 0}%`, `${match.stats[1].firstServeAttempts > 0 ? Math.round((match.stats[1].firstServeIn / match.stats[1].firstServeAttempts) * 100) : 0}%`],
+                ['Aces', match.stats[0].aces, match.stats[1].aces],
+                ['Double Faults', match.stats[0].doubleFaults, match.stats[1].doubleFaults],
+                ['Winners', match.stats[0].winners, match.stats[1].winners],
+                ['Unforced Errors', match.stats[0].unforcedErrors, match.stats[1].unforcedErrors],
+                ['Forced Errors', match.stats[0].forcedErrors, match.stats[1].forcedErrors]
+            ];
+
+            doc.setFontSize(10);
+            doc.text(match.player1Name, 20, y);
+            doc.text('Statistic', 80, y);
+            doc.text(match.player2Name, 140, y);
+            y += 7;
+
+            stats.forEach(stat => {
+                doc.text(String(stat[1]), 20, y);
+                doc.text(stat[0], 80, y);
+                doc.text(String(stat[2]), 140, y);
+                y += 7;
+            });
+
+            doc.save(`tennis-match-${match.player1Name}-vs-${match.player2Name}.pdf`);
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+
+    <!-- Optional: Include jsPDF for better PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
