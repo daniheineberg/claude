@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Pitch: Using Compound Adjectives</title>
+  <style>
+    :root {
+      --ink: #10213f;
+      --muted: #61708d;
+      --paper: rgba(255, 255, 255, 0.9);
+      --paper-strong: #ffffff;
+      --coral: #ff6b6b;
+      --sun: #ffd166;
+      --mint: #06d6a0;
+      --sky: #4dabf7;
+      --violet: #845ef7;
+      --pink: #f06595;
+      --blue-dark: #172554;
+      --shadow: 0 24px 70px rgba(16, 33, 63, 0.18);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 209, 102, 0.75), transparent 26rem),
+        radial-gradient(circle at 88% 14%, rgba(132, 94, 247, 0.42), transparent 26rem),
+        radial-gradient(circle at 20% 92%, rgba(6, 214, 160, 0.44), transparent 28rem),
+        linear-gradient(135deg, #f7fbff 0%, #eef5ff 42%, #fff6fb 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 22rem;
+      height: 22rem;
+      border-radius: 999px;
+      filter: blur(6px);
+      opacity: 0.24;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      right: -7rem;
+      bottom: -7rem;
+      background: repeating-linear-gradient(45deg, var(--sky), var(--sky) 10px, transparent 10px, transparent 22px);
+    }
+
+    body::after {
+      left: -8rem;
+      top: 35%;
+      background: repeating-linear-gradient(-45deg, var(--coral), var(--coral) 9px, transparent 9px, transparent 20px);
+    }
+
+    .deck {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: clamp(1rem, 2.4vw, 2rem);
+    }
+
+    .slides {
+      width: min(1180px, 96vw);
+      height: min(720px, 86vh);
+      position: relative;
+      perspective: 1600px;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: clamp(1rem, 2vh, 1.5rem);
+      padding: clamp(1.3rem, 3.2vw, 3.5rem);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      opacity: 0;
+      transform: translateX(80px) scale(0.96) rotateY(-8deg);
+      transition: opacity 520ms ease, transform 620ms cubic-bezier(.2,.9,.2,1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1) rotateY(0);
+      pointer-events: auto;
+    }
+
+    .slide.previous {
+      opacity: 0;
+      transform: translateX(-80px) scale(0.96) rotateY(8deg);
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: auto -5rem -9rem auto;
+      width: 20rem;
+      height: 20rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 107, 107, .2), rgba(77, 171, 247, .22));
+      z-index: -1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      width: fit-content;
+      padding: .48rem .8rem;
+      border-radius: 999px;
+      color: var(--blue-dark);
+      background: rgba(255, 209, 102, .34);
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-size: clamp(.72rem, 1.35vw, .86rem);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      max-width: 880px;
+      font-size: clamp(2.7rem, 7vw, 6.2rem);
+      line-height: .93;
+      letter-spacing: -.07em;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4.3vw, 4.35rem);
+      line-height: .96;
+      letter-spacing: -.055em;
+    }
+
+    h3 {
+      font-size: clamp(1.1rem, 2vw, 1.55rem);
+      letter-spacing: -.03em;
+    }
+
+    .lead {
+      max-width: 780px;
+      color: var(--muted);
+      font-size: clamp(1.03rem, 2vw, 1.45rem);
+      line-height: 1.5;
+      font-weight: 550;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 400px;
+      display: grid;
+      place-items: center;
+      border-radius: 36px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.88), rgba(255,255,255,.58)),
+        linear-gradient(135deg, rgba(6,214,160,.28), rgba(77,171,247,.22));
+      border: 2px solid rgba(255,255,255,.8);
+      overflow: hidden;
+    }
+
+    .product-box {
+      position: relative;
+      width: min(330px, 70%);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 42px;
+      background: linear-gradient(135deg, var(--violet), var(--sky));
+      color: white;
+      box-shadow: 0 28px 55px rgba(77, 171, 247, .35);
+      transform: rotate(-6deg);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .product-box span { font-size: clamp(5rem, 11vw, 8rem); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50% { transform: translateY(-18px) rotate(4deg); }
+    }
+
+    .spark {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      font-size: 2rem;
+      background: var(--paper-strong);
+      box-shadow: 0 14px 35px rgba(16,33,63,.12);
+    }
+    .spark.one { top: 15%; left: 8%; }
+    .spark.two { right: 10%; top: 22%; }
+    .spark.three { bottom: 12%; left: 18%; }
+
+    .badge-row, .example-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+    }
+
+    .compound {
+      display: inline-flex;
+      align-items: center;
+      gap: .08em;
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: .18em .62em .24em;
+      color: #1f1147;
+      background: linear-gradient(135deg, rgba(255,209,102,.94), rgba(255,239,173,.96));
+      font-weight: 900;
+      box-shadow: inset 0 -2px 0 rgba(255, 107, 107, .38);
+    }
+
+    .hyphen {
+      color: #d6336c;
+      margin-inline: .05em;
+      font-size: 1.18em;
+      line-height: 0;
+    }
+
+    .mini-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      align-content: center;
+    }
+
+    .mini-card, .task-card, .template-card {
+      border-radius: 24px;
+      padding: clamp(1rem, 2vw, 1.35rem);
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.95);
+      box-shadow: 0 16px 38px rgba(16,33,63,.1);
+    }
+
+    .mini-card {
+      min-height: 150px;
+      display: grid;
+      gap: .75rem;
+      align-content: start;
+    }
+
+    .icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      font-size: 1.9rem;
+      background: linear-gradient(135deg, rgba(77,171,247,.2), rgba(6,214,160,.22));
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .definition {
+      padding: clamp(1.2rem, 2.5vw, 2rem);
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(23,37,84,.96), rgba(58,27,132,.92));
+      color: white;
+      box-shadow: 0 22px 55px rgba(23,37,84,.24);
+    }
+
+    .definition p { color: rgba(255,255,255,.86); font-size: clamp(1.05rem, 1.8vw, 1.35rem); line-height: 1.55; margin-top: 1rem; }
+
+    .checklist {
+      display: grid;
+      gap: .72rem;
+      margin-top: .5rem;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .7rem;
+      align-items: center;
+      padding: .8rem .9rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,.76);
+      border: 1px solid rgba(16,33,63,.06);
+      font-weight: 720;
+    }
+
+    .check-item input {
+      appearance: none;
+      width: 1.45rem;
+      height: 1.45rem;
+      border-radius: .45rem;
+      border: 3px solid var(--sky);
+      background: white;
+      cursor: pointer;
+    }
+
+    .check-item input:checked {
+      background: var(--mint);
+      border-color: var(--mint);
+      box-shadow: inset 0 0 0 4px white;
+    }
+
+    .task-card.accent {
+      background: linear-gradient(135deg, rgba(255,209,102,.42), rgba(255,255,255,.72));
+    }
+
+    .paragraph {
+      font-size: clamp(1rem, 1.6vw, 1.24rem);
+      line-height: 1.78;
+      font-weight: 560;
+    }
+
+    .paragraph-card {
+      padding: clamp(1.2rem, 2.5vw, 2rem);
+      border-radius: 30px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,255,255,.95);
+      box-shadow: 0 20px 55px rgba(16,33,63,.11);
+    }
+
+    .margin-note {
+      display: grid;
+      gap: .7rem;
+      padding: 1.1rem;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(6,214,160,.18), rgba(77,171,247,.16));
+      align-self: start;
+    }
+
+    .template-lines {
+      display: grid;
+      gap: .72rem;
+    }
+
+    .line {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .7rem 1rem;
+      border-radius: 17px;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,.9), rgba(255,255,255,.9) 45px, rgba(77,171,247,.14) 46px);
+      border: 1px dashed rgba(16,33,63,.18);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .line strong { color: var(--ink); min-width: 145px; }
+
+    .starter-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+    }
+
+    .controls {
+      position: fixed;
+      z-index: 2;
+      left: 50%;
+      bottom: clamp(.8rem, 2vh, 1.3rem);
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .58rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(16,33,63,.16);
+      border: 1px solid rgba(255,255,255,.85);
+    }
+
+    button.nav {
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: linear-gradient(135deg, var(--violet), var(--sky));
+      font-size: 1.55rem;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+      box-shadow: 0 10px 22px rgba(77,171,247,.28);
+    }
+
+    button.nav:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(77,171,247,.36); }
+    button.nav:disabled { opacity: .38; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .counter {
+      min-width: 76px;
+      text-align: center;
+      font-weight: 900;
+      color: var(--blue-dark);
+    }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 3;
+      width: 100%;
+      height: 7px;
+      background: rgba(255,255,255,.55);
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint), var(--sky), var(--violet));
+      transition: width 420ms ease;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .deck { min-height: 100svh; padding-bottom: 6rem; }
+      .slides { height: auto; min-height: 82svh; }
+      .slide { min-height: 82svh; position: relative; display: none; overflow: visible; }
+      .slide.active { display: grid; }
+      .hero-grid, .two-column { grid-template-columns: 1fr; }
+      .hero-card { min-height: 260px; }
+      .mini-card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 620px) {
+      .mini-card-grid { grid-template-columns: 1fr; }
+      .slide { padding: 1.1rem; border-radius: 22px; }
+      .line { align-items: flex-start; flex-direction: column; gap: .25rem; }
+      .line strong { min-width: 0; }
+      .controls { bottom: .45rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+  <main class="deck" aria-live="polite">
+    <section class="slides" id="slides">
+      <article class="slide active" aria-label="Slide 1 of 5">
+        <div class="eyebrow">🚀 Create · Design · Present</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Product Pitch: Using Compound Adjectives</h1>
+            <p class="lead" style="margin-top: 1.2rem;">Invent a clever product, describe it clearly, and persuade your audience with vivid <span class="compound">compound<span class="hyphen">-</span>adjectives</span>.</p>
+            <div class="badge-row" style="margin-top: 1.6rem;">
+              <span class="compound">easy<span class="hyphen">-</span>to<span class="hyphen">-</span>use</span>
+              <span class="compound">high<span class="hyphen">-</span>quality</span>
+              <span class="compound">future<span class="hyphen">-</span>ready</span>
+            </div>
+          </div>
+          <div class="hero-card" aria-hidden="true">
+            <div class="spark one">💡</div>
+            <div class="spark two">🎤</div>
+            <div class="spark three">✨</div>
+            <div class="product-box"><span>📦</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" aria-label="Slide 2 of 5">
+        <div>
+          <div class="eyebrow">Grammar power</div>
+          <h2 style="margin-top: .7rem;">What are compound adjectives?</h2>
+        </div>
+        <div class="two-column">
+          <div class="definition">
+            <h3>Definition</h3>
+            <p>A compound adjective joins two or more words to describe a noun. We usually add hyphens before the noun so the meaning is clear.</p>
+            <p><strong>Example:</strong> a <span class="compound">solar<span class="hyphen">-</span>powered</span> charger</p>
+          </div>
+          <div class="mini-card-grid">
+            <div class="mini-card"><div class="icon">💸</div><h3><span class="compound">low<span class="hyphen">-</span>cost</span></h3><p>price-friendly</p></div>
+            <div class="mini-card"><div class="icon">🏆</div><h3><span class="compound">high<span class="hyphen">-</span>quality</span></h3><p>well made</p></div>
+            <div class="mini-card"><div class="icon">🔋</div><h3><span class="compound">long<span class="hyphen">-</span>lasting</span></h3><p>works for a long time</p></div>
+            <div class="mini-card"><div class="icon">👌</div><h3><span class="compound">easy<span class="hyphen">-</span>to<span class="hyphen">-</span>use</span></h3><p>simple for everyone</p></div>
+            <div class="mini-card"><div class="icon">☀️</div><h3><span class="compound">solar<span class="hyphen">-</span>powered</span></h3><p>uses sunlight</p></div>
+            <div class="mini-card"><div class="icon">😊</div><h3><span class="compound">user<span class="hyphen">-</span>friendly</span></h3><p>comfortable to use</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" aria-label="Slide 3 of 5">
+        <div>
+          <div class="eyebrow">Writing mission</div>
+          <h2 style="margin-top: .7rem;">Your Product Pitch Task</h2>
+        </div>
+        <div class="two-column">
+          <div class="task-card accent">
+            <h3>Invent a product and describe it clearly and effectively.</h3>
+            <p class="lead" style="margin-top: .8rem;">Write one paragraph of <strong>10–12 lines</strong>. Make your product sound useful, creative, and worth buying.</p>
+            <div class="badge-row" style="margin-top: 1.15rem;">
+              <span class="compound">well<span class="hyphen">-</span>designed</span>
+              <span class="compound">time<span class="hyphen">-</span>saving</span>
+              <span class="compound">kid<span class="hyphen">-</span>friendly</span>
+            </div>
+          </div>
+          <div class="task-card">
+            <h3>Tick off each requirement:</h3>
+            <div class="checklist">
+              <label class="check-item"><input type="checkbox"><span>Product name</span></label>
+              <label class="check-item"><input type="checkbox"><span>Description of the product</span></label>
+              <label class="check-item"><input type="checkbox"><span>Benefits of the product</span></label>
+              <label class="check-item"><input type="checkbox"><span>Target audience</span></label>
+              <label class="check-item"><input type="checkbox"><span>Why people should buy it</span></label>
+              <label class="check-item"><input type="checkbox"><span>At least 3 <span class="compound">compound<span class="hyphen">-</span>adjectives</span></span></label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" aria-label="Slide 4 of 5">
+        <div>
+          <div class="eyebrow">Student model</div>
+          <h2 style="margin-top: .7rem;">Example Product Paragraph</h2>
+        </div>
+        <div class="two-column">
+          <div class="paragraph-card">
+            <p class="paragraph"><strong>My product is called GlowBottle.</strong> It is a <span class="compound">solar<span class="hyphen">-</span>powered</span> water bottle with a smart light in the lid. During the day, it charges in sunlight, and at night it glows so students can find it easily. GlowBottle is <span class="compound">easy<span class="hyphen">-</span>to<span class="hyphen">-</span>use</span> because you only fill it, close it, and place it near a window. It is also <span class="compound">long<span class="hyphen">-</span>lasting</span>, so families do not need to buy batteries. This product is perfect for students, campers, and athletes who need water after dark. People should buy GlowBottle because it is safe, useful, and <span class="compound">eco<span class="hyphen">-</span>friendly</span>. It helps users stay hydrated while saving energy. GlowBottle makes everyday water bottles brighter, smarter, and more exciting.</p>
+          </div>
+          <aside class="margin-note">
+            <h3>Notice the highlighted adjectives</h3>
+            <p>Each highlighted phrase describes the product before or near a noun.</p>
+            <div class="starter-bank">
+              <span class="compound">solar<span class="hyphen">-</span>powered</span>
+              <span class="compound">easy<span class="hyphen">-</span>to<span class="hyphen">-</span>use</span>
+              <span class="compound">long<span class="hyphen">-</span>lasting</span>
+              <span class="compound">eco<span class="hyphen">-</span>friendly</span>
+            </div>
+          </aside>
+        </div>
+      </article>
+
+      <article class="slide" aria-label="Slide 5 of 5">
+        <div>
+          <div class="eyebrow">Your turn</div>
+          <h2 style="margin-top: .7rem;">Plan, Write, and Pitch!</h2>
+        </div>
+        <div class="two-column">
+          <div class="template-card">
+            <h3>Paragraph scaffold</h3>
+            <div class="template-lines" style="margin-top: .8rem;">
+              <div class="line"><strong>Product name:</strong> My product is called…</div>
+              <div class="line"><strong>Description:</strong> It is a/an… that…</div>
+              <div class="line"><strong>Adjective #1:</strong> It is <span class="compound">______<span class="hyphen">-</span>______</span> because…</div>
+              <div class="line"><strong>Benefit:</strong> This helps people…</div>
+              <div class="line"><strong>Audience:</strong> It is perfect for…</div>
+              <div class="line"><strong>Buy it:</strong> People should buy it because…</div>
+            </div>
+          </div>
+          <div class="template-card">
+            <h3>Compound adjective idea bank</h3>
+            <p class="lead" style="margin: .65rem 0 1rem;">Choose at least three, or create your own!</p>
+            <div class="starter-bank">
+              <span class="compound">low<span class="hyphen">-</span>cost</span>
+              <span class="compound">high<span class="hyphen">-</span>quality</span>
+              <span class="compound">long<span class="hyphen">-</span>lasting</span>
+              <span class="compound">easy<span class="hyphen">-</span>to<span class="hyphen">-</span>use</span>
+              <span class="compound">solar<span class="hyphen">-</span>powered</span>
+              <span class="compound">user<span class="hyphen">-</span>friendly</span>
+              <span class="compound">water<span class="hyphen">-</span>resistant</span>
+              <span class="compound">space<span class="hyphen">-</span>saving</span>
+              <span class="compound">school<span class="hyphen">-</span>ready</span>
+              <span class="compound">voice<span class="hyphen">-</span>activated</span>
+            </div>
+            <div class="margin-note" style="margin-top: 1.15rem;">
+              <h3>Presentation tip 🎤</h3>
+              <p>Speak clearly, show your product idea, and explain why your compound adjectives make the product sound stronger.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Presentation controls">
+    <button class="nav" id="prevBtn" aria-label="Previous slide">‹</button>
+    <div class="counter" id="counter" aria-label="Slide counter">1 / 5</div>
+    <button class="nav" id="nextBtn" aria-label="Next slide">›</button>
+  </nav>
+
+  <p class="sr-only" id="keyboardHelp">Use the left and right arrow keys to move between slides.</p>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('active', slideIndex === currentSlide);
+        slide.classList.toggle('previous', slideIndex < currentSlide);
+        slide.setAttribute('aria-hidden', slideIndex === currentSlide ? 'false' : 'true');
+      });
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === slides.length - 1;
+      counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+      progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+    }
+
+    prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') showSlide(currentSlide - 1);
+      if (event.key === 'ArrowRight' || event.key === ' ') showSlide(currentSlide + 1);
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
